@@ -44,7 +44,8 @@ pipeline {
 
                     echo "=== Installing Dependencies ==="
 
-                    bun install
+                    # --frozen-lockfile: gagal jika bun.lock tidak sinkron dengan package.json
+                    bun install --frozen-lockfile
 
                     echo "=== Dependencies Installed ==="
                 '''
@@ -214,6 +215,10 @@ pipeline {
                         -x ".git/*" \
                         -x ".env" \
                         -x ".env.*" \
+                        -x "data/*" \
+                        -x "*.db" \
+                        -x "*.db-wal" \
+                        -x "*.db-shm" \
                         -x "coverage/*" \
                         -x ".next/*" \
                         -x "out/*" \

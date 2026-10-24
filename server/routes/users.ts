@@ -15,6 +15,6 @@ usersRouter.get('/me', (_req: Request, res: Response) => {
 usersRouter.get('/', (_req: Request, res: Response) => {
   const rows = db
     .prepare('SELECT id, name, email, photo, created_at FROM users ORDER BY created_at DESC, id DESC')
-    .all() as Parameters<typeof toPublicUser>[0][];
+    .all() as unknown as Parameters<typeof toPublicUser>[0][];
   return res.json({ status: 'success', data: { users: rows.map(toPublicUser) } });
 });

@@ -66,7 +66,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!token) {
     return res.status(401).json({ status: 'fail', message: 'Token tidak ditemukan. Silakan masuk kembali.' });
   }
-  const row = findUserByTokenStmt.get(token) as Parameters<typeof toPublicUser>[0] | undefined;
+  const row = findUserByTokenStmt.get(token) as unknown as Parameters<typeof toPublicUser>[0] | undefined;
   if (!row) {
     return res.status(401).json({ status: 'fail', message: 'Sesi tidak valid atau sudah berakhir.' });
   }
