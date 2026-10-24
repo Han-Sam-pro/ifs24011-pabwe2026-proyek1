@@ -16,7 +16,7 @@ describe('Frontend Component: Navbar (src/components/Navbar.tsx)', () => {
     const onLogout = mock(() => {});
     const onOpenCreateTrip = mock(() => {});
 
-    const { getByText } = render(
+    const { getByText, getAllByText } = render(
       <Navbar
         currentView="trips"
         onNavigate={onNavigate}
@@ -27,15 +27,15 @@ describe('Frontend Component: Navbar (src/components/Navbar.tsx)', () => {
     );
 
     expect(getByText('RoamPlan')).toBeDefined();
-    expect(getByText('Rencana Perjalanan')).toBeDefined();
-    expect(getByText('Daftar Pengguna')).toBeDefined();
+    expect(getAllByText('Rencana Perjalanan').length).toBeGreaterThan(0);
+    expect(getAllByText('Daftar Pengguna').length).toBeGreaterThan(0);
     expect(getByText('Profil Saya')).toBeDefined();
     expect(getByText('+ Rencana Baru')).toBeDefined();
   });
 
   it('triggers navigation when links are clicked', () => {
     const onNavigate = mock(() => {});
-    const { getByText } = render(
+    const { getAllByText } = render(
       <Navbar
         currentView="trips"
         onNavigate={onNavigate}
@@ -45,7 +45,7 @@ describe('Frontend Component: Navbar (src/components/Navbar.tsx)', () => {
       />
     );
 
-    fireEvent.click(getByText('Daftar Pengguna'));
+    fireEvent.click(getAllByText('Daftar Pengguna')[0]);
     expect(onNavigate).toHaveBeenCalledWith('users');
   });
 

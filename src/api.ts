@@ -1,8 +1,8 @@
 import { User, Trip, TripDay, Destination, Companion, TripStats } from './types.ts';
 
 const API_BASE =
-  typeof window !== 'undefined' && window.location && window.location.origin && window.location.origin !== 'null'
-    ? '/api'
+  typeof window !== 'undefined' && window.location?.origin && window.location.origin.startsWith('http')
+    ? `${window.location.origin}/api`
     : 'http://localhost:3000/api';
 
 function getHeaders(userId?: string) {

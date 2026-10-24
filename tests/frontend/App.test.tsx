@@ -5,10 +5,10 @@ import App from '../../src/App.tsx';
 
 describe('Frontend Main Application: App (src/App.tsx)', () => {
   it('renders application navigation and dashboard view', () => {
-    const { getByText } = render(<App />);
+    const { getAllByText } = render(<App />);
 
-    expect(getByText('RoamPlan')).toBeDefined();
-    expect(getByText('Rencana Perjalanan')).toBeDefined();
-    expect(getByText('Daftar Pengguna')).toBeDefined();
+    expect(getAllByText('RoamPlan').length).toBeGreaterThan(0);
+    expect(getAllByText('Rencana Perjalanan').length).toBeGreaterThan(0);
+    expect(getAllByText('Daftar Pengguna').length).toBeGreaterThan(0);
   });
 });

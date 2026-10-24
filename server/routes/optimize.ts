@@ -33,7 +33,7 @@ optimizeRouter.post('/trips/:id/optimize', async (req: Request, res: Response) =
     const initialDistanceKm = calculateTotalDistanceKm(destinations as any);
 
     // Nearest Neighbor TSP optimization
-    const optimized = optimizeNearestNeighbor(destinations as any);
+    const optimized: any[] = optimizeNearestNeighbor(destinations as any);
 
     // Optimized total distance
     const optimizedDistanceKm = calculateTotalDistanceKm(optimized);

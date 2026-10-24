@@ -24,7 +24,7 @@ describe('Frontend Component: AddDestinationModal (src/components/AddDestination
   });
 
   it('does not render when isOpen is false', () => {
-    const { queryByText } = render(
+    const { container } = render(
       <AddDestinationModal
         isOpen={false}
         onClose={() => {}}
@@ -34,6 +34,6 @@ describe('Frontend Component: AddDestinationModal (src/components/AddDestination
       />
     );
 
-    expect(queryByText('Tambah Destinasi Kunjungan')).toBeNull();
+    expect(container.firstChild).toBeNull();
   });
 });
