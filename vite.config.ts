@@ -25,6 +25,10 @@ export default defineConfig(({ mode }) => {
       globals: true,
       environment: 'jsdom',
       setupFiles: './src/setupTests.ts',
+      // Vitest hanya menjalankan test Vitest. File dengan `bun:test` (folder tests/)
+      // dijalankan terpisah lewat `bun test` (lihat script test:bun di package.json).
+      include: ['src/**/*.test.{ts,tsx}', 'server/**/*.test.ts'],
+      exclude: ['tests/**', 'node_modules/**', 'dist/**'],
     },
   };
 });
