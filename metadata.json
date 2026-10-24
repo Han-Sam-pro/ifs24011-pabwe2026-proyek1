@@ -1,6 +1,6 @@
 {
   "name": "RoamPlan — Smart Trip Planner",
-  "description": "Aplikasi perencana perjalanan cerdas untuk menyusun itinerary per hari, peta destinasi interaktif, kalkulator anggaran, optimasi urutan rute, dan berbagi jadwal.",
+  "description": "Aplikasi penyusun rencana perjalanan cerdas dengan urutan tempat, waktu, anggaran per hari, peta interaktif, dan kolaborasi teman perjalanan.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

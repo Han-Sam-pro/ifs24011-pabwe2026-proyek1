@@ -1,17 +1,20 @@
-import express from 'express';
-import { apiRouter } from './routes/api';
-import { proxyRouter } from './routes/proxy';
+import express, { Express } from 'express';
+import { authRouter } from './routes/auth.ts';
+import { usersRouter } from './routes/users.ts';
+import { tripsRouter } from './routes/trips.ts';
+import { optimizeRouter } from './routes/optimize.ts';
+import { companionsRouter } from './routes/companions.ts';
 
-export function createExpressApp() {
+export function createExpressApp(): Express {
   const app = express();
-
   app.use(express.json());
 
-  // Mount backend API routes
-  app.use('/api', apiRouter);
-
-  // Mount proxy gateway to Delcom Open API
-  app.use('/api-proxy', proxyRouter);
+  // Mount API routers
+  app.use('/api/auth', authRouter);
+  app.use('/api', usersRouter);
+  app.use('/api', tripsRouter);
+  app.use('/api', optimizeRouter);
+  app.use('/api', companionsRouter);
 
   return app;
 }
