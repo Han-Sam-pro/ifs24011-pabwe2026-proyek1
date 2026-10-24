@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { delcomLogin, setAuthSession } from '../services/delcomApi';
+import { loginUser, setAuthSession } from '../services/roamApi';
 import { Compass, Mail, Lock, LogIn, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export const LoginPage: React.FC<{ onLoginSuccess?: () => void }> = ({ onLoginSuccess }) => {
@@ -19,7 +19,7 @@ export const LoginPage: React.FC<{ onLoginSuccess?: () => void }> = ({ onLoginSu
     setLoading(true);
 
     try {
-      const res = await delcomLogin(email.trim(), password);
+      const res = await loginUser(email.trim(), password);
       if (res.status === 'success' && res.data) {
         setSuccessMessage('Berhasil masuk! Mengalihkan ke halaman utama...');
         setAuthSession(res.data.token, res.data.user);
@@ -31,7 +31,7 @@ export const LoginPage: React.FC<{ onLoginSuccess?: () => void }> = ({ onLoginSu
         setErrorMessage(res.message || 'Email atau password salah. Silakan coba lagi.');
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : 'Terjadi kesalahan koneksi ke server Delcom API');
+      setErrorMessage(err instanceof Error ? err.message : 'Terjadi kesalahan koneksi ke server RoamPlan');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { delcomRegister } from '../services/delcomApi';
+import { registerUser } from '../services/roamApi';
 import { Compass, User, Mail, Lock, UserPlus, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
@@ -20,7 +20,7 @@ export const RegisterPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await delcomRegister(name.trim(), email.trim(), password);
+      const res = await registerUser(name.trim(), email.trim(), password);
       if (res.status === 'success') {
         setSuccessMessage('Pendaftaran berhasil! Mengalihkan ke halaman masuk...');
         setTimeout(() => {
@@ -30,7 +30,7 @@ export const RegisterPage: React.FC = () => {
         setErrorMessage(res.message || 'Gagal mendaftar akun. Silakan periksa kembali data Anda.');
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : 'Terjadi kesalahan koneksi ke server Delcom API');
+      setErrorMessage(err instanceof Error ? err.message : 'Terjadi kesalahan koneksi ke server RoamPlan');
     } finally {
       setLoading(false);
     }

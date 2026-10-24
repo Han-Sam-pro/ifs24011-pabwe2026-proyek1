@@ -1,20 +1,14 @@
-import express, { Express } from 'express';
-import { authRouter } from './routes/auth.ts';
-import { usersRouter } from './routes/users.ts';
-import { tripsRouter } from './routes/trips.ts';
-import { optimizeRouter } from './routes/optimize.ts';
-import { companionsRouter } from './routes/companions.ts';
+import express from 'express';
+import { apiRouter } from './routes/api';
 
-export function createExpressApp(): Express {
+export function createExpressApp() {
   const app = express();
-  app.use(express.json());
 
-  // Mount API routers
-  app.use('/api/auth', authRouter);
-  app.use('/api', usersRouter);
-  app.use('/api', tripsRouter);
-  app.use('/api', optimizeRouter);
-  app.use('/api', companionsRouter);
+  // Itinerary bisa cukup besar, jadi batas body dinaikkan dari default 100kb
+  app.use(express.json({ limit: '1mb' }));
+
+  // Semua endpoint backend (auth, users, trips, cities) berada di bawah /api
+  app.use('/api', apiRouter);
 
   return app;
 }

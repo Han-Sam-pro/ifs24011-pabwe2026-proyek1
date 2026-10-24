@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { delcomGetUsersList, DelcomUser } from '../services/delcomApi';
+import { getUsersList, AppUser } from '../services/roamApi';
 import { X, Users, Search, RefreshCw, Mail, Calendar } from 'lucide-react';
 
 interface UsersDirectoryModalProps {
@@ -11,13 +11,13 @@ export const UsersDirectoryModal: React.FC<UsersDirectoryModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const [users, setUsers] = useState<DelcomUser[]>([]);
+  const [users, setUsers] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const loadUsers = async () => {
     setLoading(true);
-    const list = await delcomGetUsersList();
+    const list = await getUsersList();
     setUsers(list);
     setLoading(false);
   };
@@ -97,7 +97,7 @@ export const UsersDirectoryModal: React.FC<UsersDirectoryModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
           {loading ? (
             <div className="p-10 text-center text-xs text-stone-500 font-mono">
-              Memuat data pengguna dari Delcom Database...
+              Memuat data pengguna dari database...
             </div>
           ) : filteredUsers.length === 0 ? (
             <div className="p-10 text-center text-xs text-stone-500">
@@ -111,7 +111,7 @@ export const UsersDirectoryModal: React.FC<UsersDirectoryModalProps> = ({
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <img
-                    src={user.photo || 'https://open-api.delcom.org/default/img/user.png'}
+                    src={user.photo || '/default-avatar.svg'}
                     alt={user.name}
                     className="w-10 h-10 rounded-full object-cover border border-orange-200 shrink-0"
                   />

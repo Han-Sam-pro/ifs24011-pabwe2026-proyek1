@@ -4,7 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { UsersPage } from '../pages/UsersPage';
 import { PRESET_TRIPS } from '../data/presetTrips';
-import * as delcomApi from '../services/delcomApi';
+import * as roamApi from '../services/roamApi';
 
 describe('UsersPage Component', () => {
   it('renders users directory header, fetches users, and filters list', async () => {
@@ -12,7 +12,7 @@ describe('UsersPage Component', () => {
       { id: 1, name: 'Alice Wonderland', email: 'alice@example.com' },
       { id: 2, name: 'Bob Builder', email: 'bob@example.com' },
     ];
-    vi.spyOn(delcomApi, 'delcomGetUsersList').mockResolvedValue(mockUsers);
+    vi.spyOn(roamApi, 'getUsersList').mockResolvedValue(mockUsers);
 
     render(
       <BrowserRouter>

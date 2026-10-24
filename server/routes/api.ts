@@ -1,4 +1,7 @@
 import { Router, Request, Response } from 'express';
+import { authRouter } from './auth';
+import { usersRouter } from './users';
+import { tripsRouter } from './trips';
 
 export const apiRouter = Router();
 
@@ -11,6 +14,11 @@ apiRouter.get('/health', (_req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Auth, pengguna, dan itinerary (data disimpan di SQLite lokal)
+apiRouter.use('/auth', authRouter);
+apiRouter.use('/users', usersRouter);
+apiRouter.use('/trips', tripsRouter);
 
 // Cities search & geocoding helper endpoint
 apiRouter.get('/cities/suggest', (req: Request, res: Response) => {

@@ -3,17 +3,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 import App from '../App';
-import * as delcomApi from '../services/delcomApi';
+import * as roamApi from '../services/roamApi';
 
-vi.mock('../services/delcomApi', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../services/delcomApi')>();
+vi.mock('../services/roamApi', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../services/roamApi')>();
   return {
     ...actual,
     getStoredToken: vi.fn(),
     getStoredUser: vi.fn(),
-    delcomGetProfile: vi.fn(),
-    delcomGetUserTrips: vi.fn(),
-    delcomSaveTrip: vi.fn(),
+    getProfile: vi.fn(),
+    getUserTrips: vi.fn(),
+    saveTrip: vi.fn(),
   };
 });
 
@@ -25,26 +25,26 @@ describe('App Root Component', () => {
     window.history.pushState({}, '', '/');
 
     // Provide default resolved values for mocked promises to avoid 'cannot read then of undefined'
-    vi.mocked(delcomApi.getStoredToken).mockReturnValue(null);
-    vi.mocked(delcomApi.getStoredUser).mockReturnValue(null);
-    vi.mocked(delcomApi.delcomGetProfile).mockResolvedValue(null);
-    vi.mocked(delcomApi.delcomGetUserTrips).mockResolvedValue([]);
-    vi.mocked(delcomApi.delcomSaveTrip).mockResolvedValue(true);
+    vi.mocked(roamApi.getStoredToken).mockReturnValue(null);
+    vi.mocked(roamApi.getStoredUser).mockReturnValue(null);
+    vi.mocked(roamApi.getProfile).mockResolvedValue(null);
+    vi.mocked(roamApi.getUserTrips).mockResolvedValue([]);
+    vi.mocked(roamApi.saveTrip).mockResolvedValue(true);
   });
 
 
 
   it('renders App root and redirects unauthenticated user to login', () => {
-    vi.mocked(delcomApi.getStoredToken).mockReturnValue(null);
+    vi.mocked(roamApi.getStoredToken).mockReturnValue(null);
     render(<App />);
     expect(screen.getByText(/masuk ke roamplan/i)).toBeInTheDocument();
   });
 
   it('covers all app handlers and interactions', async () => {
     const mockUser = { id: 10, name: 'Budi Santoso', email: 'budi@example.com' };
-    vi.mocked(delcomApi.getStoredToken).mockReturnValue('valid-token-123');
-    vi.mocked(delcomApi.getStoredUser).mockReturnValue(mockUser);
-    vi.mocked(delcomApi.delcomGetProfile).mockResolvedValue(mockUser);
+    vi.mocked(roamApi.getStoredToken).mockReturnValue('valid-token-123');
+    vi.mocked(roamApi.getStoredUser).mockReturnValue(mockUser);
+    vi.mocked(roamApi.getProfile).mockResolvedValue(mockUser);
 
     render(<App />);
     await waitFor(() => expect(screen.queryAllByText(/Budi/i).length).toBeGreaterThan(0));
@@ -80,12 +80,12 @@ describe('App Root Component', () => {
     // 6. Day management
     fireEvent.click(screen.getByRole('button', { name: /tambah hari baru/i }));
     fireEvent.click(screen.getByLabelText(/pilih hari ke 2/i));
-    fireEvent.click(screen.getByLabelText(/hapus hari \d+/i));
+    fireEvent.click(screen.getByLabelText(/hapus hari ini/i));
 
     // 7. Update Day Theme
-    fireEvent.click(screen.getByLabelText(/edit judul tema atau tanggal hari ini/i));
-    fireEvent.change(screen.getByLabelText(/judul tema hari/i), { target: { value: 'New Theme' } });
-    fireEvent.click(screen.getByLabelText(/simpan perubahan tema dan tanggal hari ini/i));
+    fireEvent.click(screen.getByLabelText(/ubah tema dan tanggal hari ini/i));
+    fireEvent.change(screen.getByLabelText(/tema kunjungan/i), { target: { value: 'New Theme' } });
+    fireEvent.click(screen.getByRole('button', { name: /simpan tema/i }));
 
     // 8. Map interaction
     fireEvent.click(screen.getByTestId('google-map'));

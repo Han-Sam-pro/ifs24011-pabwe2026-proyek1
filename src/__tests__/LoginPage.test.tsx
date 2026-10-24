@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { LoginPage } from '../pages/LoginPage';
-import * as delcomApi from '../services/delcomApi';
+import * as roamApi from '../services/roamApi';
 
 describe('LoginPage Component', () => {
   it('renders required grading selectors (#username, #password, #btn-submit)', () => {
@@ -28,7 +28,7 @@ describe('LoginPage Component', () => {
   });
 
   it('handles login form submission success and failure', async () => {
-    const loginSpy = vi.spyOn(delcomApi, 'delcomLogin');
+    const loginSpy = vi.spyOn(roamApi, 'loginUser');
 
     // Failure case
     loginSpy.mockResolvedValueOnce({

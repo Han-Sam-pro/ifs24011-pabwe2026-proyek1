@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TripPlan } from '../types/trip';
-import { DelcomUser } from '../services/delcomApi';
+import { AppUser } from '../services/roamApi';
 import {
   Compass,
   Share2,
@@ -17,7 +17,7 @@ import { PRESET_TRIPS } from '../data/presetTrips';
 interface HeaderProps {
   trip: TripPlan;
   activeViewTab: 'planner' | 'budget';
-  currentUser: DelcomUser | null;
+  currentUser: AppUser | null;
   onChangeViewTab: (tab: 'planner' | 'budget') => void;
   onOpenShareModal: () => void;
   onTriggerPrint: () => void;
@@ -126,7 +126,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Zone 3: Users Directory, Auth Account, Currency & Actions */}
         <div className="flex items-center gap-2 shrink-0">
-          {/* Delcom Users Directory Page Link */}
+          {/* Users Directory Page Link */}
           <Link
             to="/users"
             title="Lihat Daftar Pengguna Terdaftar"
@@ -147,7 +147,7 @@ export const Header: React.FC<HeaderProps> = ({
             {currentUser ? (
               <>
                 <img
-                  src={currentUser.photo || 'https://open-api.delcom.org/default/img/user.png'}
+                  src={currentUser.photo || '/default-avatar.svg'}
                   alt={currentUser.name}
                   className="w-4 h-4 rounded-full object-cover border border-orange-300"
                 />

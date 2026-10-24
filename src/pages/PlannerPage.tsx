@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { TripPlan, Destination, DayPlan } from '../types/trip';
-import { DelcomUser } from '../services/delcomApi';
+import { AppUser } from '../services/roamApi';
 import { Header } from '../components/Header';
 import { DayTabs } from '../components/DayTabs';
 import { ItineraryView } from '../components/ItineraryView';
@@ -22,7 +22,7 @@ interface PlannerPageProps {
   googleMapsApiKey: string;
   mobileSubTab: 'list' | 'map';
   setMobileSubTab: (tab: 'list' | 'map') => void;
-  currentUser: DelcomUser | null;
+  currentUser: AppUser | null;
   isSharedTripImported: boolean;
   setIsSharedTripImported: (val: boolean) => void;
   toastMessage: string | null;

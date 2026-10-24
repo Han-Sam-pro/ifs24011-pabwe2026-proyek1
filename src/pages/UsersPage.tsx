@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { delcomGetUsersList, DelcomUser } from '../services/delcomApi';
+import { getUsersList, AppUser } from '../services/roamApi';
 import { Header } from '../components/Header';
 import { Users, Search, RefreshCw, Mail, Calendar, ShieldCheck } from 'lucide-react';
 import { TripPlan } from '../types/trip';
 
 interface UsersPageProps {
   trip: TripPlan;
-  currentUser: DelcomUser | null;
+  currentUser: AppUser | null;
   onOpenShareModal: () => void;
   onTriggerPrint: () => void;
   onSelectPresetTrip: (preset: TripPlan) => void;
@@ -18,13 +18,13 @@ interface UsersPageProps {
 }
 
 export const UsersPage: React.FC<UsersPageProps> = (props) => {
-  const [users, setUsers] = useState<DelcomUser[]>([]);
+  const [users, setUsers] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const loadUsers = async () => {
     setLoading(true);
-    const list = await delcomGetUsersList();
+    const list = await getUsersList();
     setUsers(list);
     setLoading(false);
   };
@@ -113,7 +113,7 @@ export const UsersPage: React.FC<UsersPageProps> = (props) => {
                 className="bg-white p-4 rounded-2xl border border-orange-200/80 hover:border-orange-400 transition-all shadow-2xs flex items-center gap-3.5"
               >
                 <img
-                  src={user.photo || 'https://open-api.delcom.org/default/img/user.png'}
+                  src={user.photo || '/default-avatar.svg'}
                   alt={user.name}
                   className="w-12 h-12 rounded-full object-cover border-2 border-orange-200 shrink-0"
                 />

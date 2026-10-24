@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { RegisterPage } from '../pages/RegisterPage';
-import * as delcomApi from '../services/delcomApi';
+import * as roamApi from '../services/roamApi';
 
 describe('RegisterPage Component', () => {
   it('renders registration form inputs and submit button', () => {
@@ -25,7 +25,7 @@ describe('RegisterPage Component', () => {
   });
 
   it('handles registration success and failure', async () => {
-    const regSpy = vi.spyOn(delcomApi, 'delcomRegister');
+    const regSpy = vi.spyOn(roamApi, 'registerUser');
 
     // Failure
     regSpy.mockResolvedValueOnce({

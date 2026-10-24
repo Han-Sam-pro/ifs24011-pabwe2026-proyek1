@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import {
-  delcomLogin,
-  delcomRegister,
+  loginUser,
+  registerUser,
   setAuthSession,
-  DelcomUser,
-} from '../services/delcomApi';
+  AppUser,
+} from '../services/roamApi';
 import { X, LogIn, UserPlus, ShieldCheck, Mail, Lock, User, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentUser: DelcomUser | null;
-  onUserLoggedIn: (user: DelcomUser) => void;
+  currentUser: AppUser | null;
+  onUserLoggedIn: (user: AppUser) => void;
   onUserLoggedOut: () => void;
 }
 
@@ -41,9 +41,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     try {
       if (activeTab === 'login') {
-        const res = await delcomLogin(email.trim(), password);
+        const res = await loginUser(email.trim(), password);
         if (res.status === 'success' && res.data) {
-          setSuccessMessage('Berhasil masuk ke akun Delcom!');
+          setSuccessMessage('Berhasil masuk ke akun RoamPlan!');
           onUserLoggedIn(res.data.user);
           setTimeout(() => {
             onClose();
@@ -52,7 +52,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           setErrorMessage(res.message || 'Email atau password salah');
         }
       } else {
-        const res = await delcomRegister(name.trim(), email.trim(), password);
+        const res = await registerUser(name.trim(), email.trim(), password);
         if (res.status === 'success') {
           setSuccessMessage('Pendaftaran berhasil! Silakan masuk dengan email & password Anda.');
           setActiveTab('login');
@@ -61,7 +61,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         }
       }
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : 'Terjadi kesalahan koneksi ke server Delcom API');
+      setErrorMessage(err instanceof Error ? err.message : 'Terjadi kesalahan koneksi ke server RoamPlan');
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="p-6 space-y-5 text-center">
             <div className="flex flex-col items-center gap-3">
               <img
-                src={currentUser.photo || 'https://open-api.delcom.org/default/img/user.png'}
+                src={currentUser.photo || '/default-avatar.svg'}
                 alt={currentUser.name}
                 className="w-20 h-20 rounded-full border-4 border-orange-200 shadow-md object-cover"
               />

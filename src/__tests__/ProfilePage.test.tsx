@@ -14,7 +14,7 @@ describe('ProfilePage Component', () => {
       id: 1,
       name: 'Test User',
       email: 'test@example.com',
-      photo: 'https://open-api.delcom.org/default/img/user.png',
+      photo: '/default-avatar.svg',
     };
 
     render(

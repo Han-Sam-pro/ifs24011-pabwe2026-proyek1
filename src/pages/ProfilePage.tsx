@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DelcomUser, clearAuthSession } from '../services/delcomApi';
+import { AppUser } from '../services/roamApi';
 import { Header } from '../components/Header';
 import { User, ShieldCheck, Mail, Calendar, LogOut, MapPin, Sparkles } from 'lucide-react';
 import { TripPlan } from '../types/trip';
 
 interface ProfilePageProps {
   trip: TripPlan;
-  currentUser: DelcomUser | null;
+  currentUser: AppUser | null;
   onUserLoggedOut: () => void;
   onOpenShareModal: () => void;
   onTriggerPrint: () => void;
@@ -24,7 +24,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = (props) => {
   const user = props.currentUser;
 
   const handleLogout = () => {
-    clearAuthSession();
     props.onUserLoggedOut();
     navigate('/auth/login');
   };
@@ -50,7 +49,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = (props) => {
         {/* Profile Card */}
         <div className="bg-white rounded-2xl border border-orange-200/90 p-8 shadow-sm flex flex-col md:flex-row items-center gap-6">
           <img
-            src={user?.photo || 'https://open-api.delcom.org/default/img/user.png'}
+            src={user?.photo || '/default-avatar.svg'}
             alt={user?.name || 'Pengguna'}
             className="w-24 h-24 rounded-full border-4 border-orange-200 shadow-md object-cover shrink-0"
           />

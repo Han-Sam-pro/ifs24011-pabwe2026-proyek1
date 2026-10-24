@@ -2,14 +2,14 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { AuthModal } from '../components/AuthModal';
-import * as delcomApi from '../services/delcomApi';
+import * as roamApi from '../services/roamApi';
 
 describe('AuthModal Detailed Coverage', () => {
   it('handles login and registration flows within the modal', async () => {
     const onLogin = vi.fn();
     const onLogout = vi.fn();
-    const loginSpy = vi.spyOn(delcomApi, 'delcomLogin');
-    const registerSpy = vi.spyOn(delcomApi, 'delcomRegister');
+    const loginSpy = vi.spyOn(roamApi, 'loginUser');
+    const registerSpy = vi.spyOn(roamApi, 'registerUser');
 
     render(
       <AuthModal

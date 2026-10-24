@@ -1,95 +1,68 @@
 import { Router, Request, Response } from 'express';
-import { getDb, queryOne, executeRun } from '../db.ts';
+import { db } from '../db';
+import {
+  createSession,
+  deleteSession,
+  hashPassword,
+  requireAuth,
+  toPublicUser,
+  verifyPassword,
+} from '../auth';
 
 export const authRouter = Router();
 
-// Register
-authRouter.post('/register', async (req: Request, res: Response) => {
-  try {
-    const { name, email, password, home_city, bio } = req.body;
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'Nama, email, dan kata sandi wajib diisi.' });
-    }
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    const db = await getDb();
-    const existing = queryOne(db, 'SELECT id FROM users WHERE email = ?', [email.toLowerCase().trim()]);
-    if (existing) {
-      return res.status(409).json({ error: 'Email sudah terdaftar. Silakan login.' });
-    }
+// POST /api/auth/register
+authRouter.post('/register', (req: Request, res: Response) => {
+  const name = String(req.body?.name ?? '').trim();
+  const email = String(req.body?.email ?? '').trim();
+  const password = String(req.body?.password ?? '');
 
-    const id = `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const now = new Date().toISOString();
+  if (!name) return res.status(400).json({ status: 'fail', message: 'Nama wajib diisi.' });
+  if (!EMAIL_RE.test(email)) return res.status(400).json({ status: 'fail', message: 'Format email tidak valid.' });
+  if (password.length < 6) return res.status(400).json({ status: 'fail', message: 'Password minimal 6 karakter.' });
 
-    executeRun(
-      db,
-      'INSERT INTO users (id, name, email, password, avatar, bio, home_city, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        id,
-        name.trim(),
-        email.toLowerCase().trim(),
-        password,
-        '',
-        bio || 'Travel enthusiast exploring the world with RoamPlan.',
-        home_city || 'Jakarta, Indonesia',
-        now,
-      ]
-    );
+  const exists = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+  if (exists) return res.status(409).json({ status: 'fail', message: 'Email sudah terdaftar.' });
 
-    const user = queryOne(
-      db,
-      'SELECT id, name, email, avatar, bio, home_city, created_at FROM users WHERE id = ?',
-      [id]
-    );
-    return res.status(201).json({ message: 'Pendaftaran berhasil.', user });
-  } catch (err: any) {
-    console.error('Register error:', err);
-    return res.status(500).json({ error: err.message || 'Gagal mendaftarkan pengguna.' });
-  }
+  const result = db
+    .prepare('INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)')
+    .run(name, email, hashPassword(password));
+
+  const row = db.prepare('SELECT id, name, email, photo, created_at FROM users WHERE id = ?').get(result.lastInsertRowid) as Parameters<typeof toPublicUser>[0];
+  const token = createSession(row.id);
+
+  return res.status(201).json({
+    status: 'success',
+    message: 'Registrasi berhasil.',
+    data: { user: toPublicUser(row), token },
+  });
 });
 
-// Login
-authRouter.post('/login', async (req: Request, res: Response) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email dan kata sandi wajib diisi.' });
-    }
+// POST /api/auth/login
+authRouter.post('/login', (req: Request, res: Response) => {
+  const email = String(req.body?.email ?? '').trim();
+  const password = String(req.body?.password ?? '');
 
-    const db = await getDb();
-    const user = queryOne(
-      db,
-      'SELECT id, name, email, avatar, bio, home_city, created_at, password FROM users WHERE email = ?',
-      [email.toLowerCase().trim()]
-    );
+  const row = db
+    .prepare('SELECT id, name, email, photo, created_at, password_hash FROM users WHERE email = ?')
+    .get(email) as (Parameters<typeof toPublicUser>[0] & { password_hash: string }) | undefined;
 
-    if (!user || (user as any).password !== password) {
-      return res.status(401).json({ error: 'Email atau kata sandi tidak sesuai.' });
-    }
-
-    const { password: _, ...safeUser } = user as any;
-    return res.json({ message: 'Login berhasil.', user: safeUser });
-  } catch (err: any) {
-    console.error('Login error:', err);
-    return res.status(500).json({ error: err.message || 'Gagal memproses login.' });
+  if (!row || !verifyPassword(password, row.password_hash)) {
+    return res.status(401).json({ status: 'fail', message: 'Email atau password salah.' });
   }
+
+  const token = createSession(row.id);
+  return res.json({
+    status: 'success',
+    message: 'Login berhasil.',
+    data: { user: toPublicUser(row), token },
+  });
 });
 
-// Get current user session
-authRouter.get('/me', async (req: Request, res: Response) => {
-  try {
-    const userId = (req.headers['x-user-id'] as string) || (req.query.userId as string);
-    const db = await getDb();
-    if (!userId) {
-      const defaultUser = queryOne(db, 'SELECT id, name, email, avatar, bio, home_city, created_at FROM users LIMIT 1');
-      return res.json({ user: defaultUser });
-    }
-
-    const user = queryOne(db, 'SELECT id, name, email, avatar, bio, home_city, created_at FROM users WHERE id = ?', [userId]);
-    if (!user) {
-      return res.status(404).json({ error: 'Pengguna tidak ditemukan.' });
-    }
-    return res.json({ user });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
-  }
+// POST /api/auth/logout
+authRouter.post('/logout', requireAuth, (_req: Request, res: Response) => {
+  deleteSession(res.locals.token as string);
+  return res.json({ status: 'success', message: 'Logout berhasil.' });
 });
