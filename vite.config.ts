@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname, '.'),
       },
     },
     server: {
@@ -34,6 +34,11 @@ export default defineConfig(({ mode }) => {
       DELCOM_BASEURL: JSON.stringify(
         env.VITE_DELCOM_BASEURL || '/api-proxy'
       ),
+    },
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './src/setupTests.ts',
     },
   };
 });
