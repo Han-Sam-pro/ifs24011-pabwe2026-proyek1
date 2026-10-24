@@ -1,8 +1,9 @@
 /// <reference types="@testing-library/jest-dom" />
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { LoginPage } from '../pages/LoginPage';
+import * as delcomApi from '../services/delcomApi';
 
 describe('LoginPage Component', () => {
   it('renders required grading selectors (#username, #password, #btn-submit)', () => {
@@ -24,5 +25,51 @@ describe('LoginPage Component', () => {
 
     expect(submitButton).toBeInTheDocument();
     expect(submitButton).toHaveAttribute('id', 'btn-submit');
+  });
+
+  it('handles login form submission success and failure', async () => {
+    const loginSpy = vi.spyOn(delcomApi, 'delcomLogin');
+
+    // Failure case
+    loginSpy.mockResolvedValueOnce({
+      status: 'fail',
+      message: 'Email atau password salah',
+    });
+
+    render(
+      <BrowserRouter>
+        <LoginPage />
+      </BrowserRouter>
+    );
+
+    const usernameInput = screen.getByRole('textbox', { name: /alamat email \/ username/i });
+    const passwordInput = screen.getByLabelText(/kata sandi/i);
+    const submitButton = screen.getByRole('button', { name: /masuk \(login\)/i });
+
+    fireEvent.change(usernameInput, { target: { value: 'wrong@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'wrongpass' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/email atau password salah/i)).toBeInTheDocument();
+    });
+
+    // Success case
+    loginSpy.mockResolvedValueOnce({
+      status: 'success',
+      message: 'Berhasil',
+      data: {
+        token: 'token-123',
+        user: { id: 1, name: 'User 1', email: 'user1@example.com' },
+      },
+    });
+
+    fireEvent.change(usernameInput, { target: { value: 'user1@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'correct' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/berhasil masuk/i)).toBeInTheDocument();
+    });
   });
 });
