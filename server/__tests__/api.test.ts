@@ -39,9 +39,16 @@ beforeAll(async () => {
   base = `http://127.0.0.1:${port}/api`;
 });
 
-afterAll(() => {
-  server?.close();
-  fs.rmSync(tmpDir, { recursive: true, force: true });
+afterAll(async () => {
+  // Tutup koneksi HTTP lalu server, baru koneksi database
+  server?.closeAllConnections();
+  await new Promise<void>((resolve) => server.close(() => resolve()));
+
+  const { closeDb } = await import('../db');
+  closeDb();
+
+  // Di Windows, penghapusan bisa gagal sesaat (EPERM) jika file masih dipakai; coba ulang
+  fs.rmSync(tmpDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 });
 
 describe('RoamPlan API (SQLite)', () => {

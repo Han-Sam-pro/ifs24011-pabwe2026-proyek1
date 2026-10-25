@@ -27,6 +27,9 @@ export default defineConfig(({ mode }) => {
       setupFiles: './src/setupTests.ts',
       // Vitest hanya menjalankan test Vitest. File dengan `bun:test` (folder tests/)
       // dijalankan terpisah lewat `bun test` (lihat script test:bun di package.json).
+      // Mesin lambat (mis. Windows/Jenkins) butuh waktu lebih lama untuk render App penuh
+      testTimeout: 20000,
+      hookTimeout: 20000,
       include: ['src/**/*.test.{ts,tsx}', 'server/**/*.test.ts'],
       exclude: ['tests/**', 'node_modules/**', 'dist/**'],
     },
