@@ -1,4 +1,4 @@
-import { DatabaseSync } from 'node:sqlite';
+import Database from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 
@@ -8,22 +8,9 @@ const DB_PATH =
 
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
-// node:sqlite adalah SQLite bawaan Node.js (>= 22.13), sehingga tidak perlu
-// addon native dan tidak ada langkah kompilasi saat `bun install` / `npm install`.
-export const db = new DatabaseSync(DB_PATH);
-// Tunggu sampai 5 detik jika database sedang dikunci (mis. beberapa test berjalan paralel)
-db.exec('PRAGMA busy_timeout = 5000;');
-db.exec('PRAGMA journal_mode = WAL;');
-db.exec('PRAGMA foreign_keys = ON;');
-
-// Menutup koneksi database. Wajib dipanggil sebelum menghapus file DB (terutama di Windows).
-export function closeDb(): void {
-  try {
-    db.close();
-  } catch {
-    // sudah tertutup
-  }
-}
+export const db = new Database(DB_PATH);
+db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (

@@ -19,7 +19,7 @@ tripsRouter.get('/', (_req: Request, res: Response) => {
   const user = res.locals.user as PublicUser;
   const rows = db
     .prepare('SELECT id, title, destination_city, data, updated_at FROM trips WHERE user_id = ? ORDER BY updated_at DESC')
-    .all(user.id) as unknown as TripRow[];
+    .all(user.id) as TripRow[];
 
   const trips = rows.map((r) => JSON.parse(r.data));
   return res.json({ status: 'success', data: { trips } });

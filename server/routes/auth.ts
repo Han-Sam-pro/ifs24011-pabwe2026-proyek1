@@ -30,7 +30,7 @@ authRouter.post('/register', (req: Request, res: Response) => {
     .prepare('INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)')
     .run(name, email, hashPassword(password));
 
-  const row = db.prepare('SELECT id, name, email, photo, created_at FROM users WHERE id = ?').get(result.lastInsertRowid) as unknown as Parameters<typeof toPublicUser>[0];
+  const row = db.prepare('SELECT id, name, email, photo, created_at FROM users WHERE id = ?').get(result.lastInsertRowid) as Parameters<typeof toPublicUser>[0];
   const token = createSession(row.id);
 
   return res.status(201).json({
@@ -47,7 +47,7 @@ authRouter.post('/login', (req: Request, res: Response) => {
 
   const row = db
     .prepare('SELECT id, name, email, photo, created_at, password_hash FROM users WHERE email = ?')
-    .get(email) as unknown as (Parameters<typeof toPublicUser>[0] & { password_hash: string }) | undefined;
+    .get(email) as (Parameters<typeof toPublicUser>[0] & { password_hash: string }) | undefined;
 
   if (!row || !verifyPassword(password, row.password_hash)) {
     return res.status(401).json({ status: 'fail', message: 'Email atau password salah.' });

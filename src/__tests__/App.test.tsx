@@ -80,12 +80,12 @@ describe('App Root Component', () => {
     // 6. Day management
     fireEvent.click(screen.getByRole('button', { name: /tambah hari baru/i }));
     fireEvent.click(screen.getByLabelText(/pilih hari ke 2/i));
-    fireEvent.click(screen.getByLabelText(/hapus hari 2/i));
+    fireEvent.click(screen.getByLabelText(/hapus hari ini/i));
 
     // 7. Update Day Theme
-    fireEvent.click(screen.getByLabelText(/edit judul tema atau tanggal hari ini/i));
-    fireEvent.change(screen.getByLabelText(/judul tema hari/i), { target: { value: 'New Theme' } });
-    fireEvent.click(screen.getByLabelText(/simpan perubahan tema dan tanggal hari ini/i));
+    fireEvent.click(screen.getByLabelText(/ubah tema dan tanggal hari ini/i));
+    fireEvent.change(screen.getByLabelText(/tema kunjungan/i), { target: { value: 'New Theme' } });
+    fireEvent.click(screen.getByRole('button', { name: /simpan tema/i }));
 
     // 8. Map interaction
     fireEvent.click(screen.getByTestId('google-map'));
