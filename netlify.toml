@@ -3,11 +3,11 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "24"
+  # Isi dengan alamat backend jika backend di-host terpisah (lihat README).
+  # VITE_API_BASE_URL = "https://api.roamplan.example.com/api"
 
-# Catatan: backend (/api + SQLite) adalah server Express. Netlify hanya men-host
-# frontend statis; jalankan backend (npm start) di host Node.js yang mendukung file.
-# Single Page Application (SPA) fallback for React Router
+# Single Page Application (SPA) fallback untuk React Router
 [[redirects]]
   from = "/*"
   to = "/index.html"

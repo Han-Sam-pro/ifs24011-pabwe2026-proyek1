@@ -1,7 +1,9 @@
 import { TripPlan } from '../types/trip';
 
-// Semua permintaan diarahkan ke backend RoamPlan sendiri (Express + SQLite).
-const BASE_URL = '/api';
+// Semua permintaan diarahkan ke backend RoamPlan (Express + SQLite).
+// - Development: '/api' diteruskan oleh proxy Vite ke backend (lihat vite.config.ts).
+// - Produksi terpisah domain: isi VITE_API_BASE_URL, mis. https://api.example.com/api
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
 
 export const DEFAULT_AVATAR = '/default-avatar.svg';
 
