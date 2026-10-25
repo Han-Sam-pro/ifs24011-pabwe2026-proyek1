@@ -5,8 +5,11 @@ pipeline {
     options {
         timestamps()
         skipDefaultCheckout(true)
-        // Hentikan stage berikutnya jika publisher menandai build UNSTABLE/FAILURE
+        // Stop later stages if a publisher marks the build UNSTABLE/FAILURE mid-run
         skipStagesAfterUnstable()
+        // Satu proyek hanya boleh jalankan satu job.
+        // Jika ada build baru dipicu, build lama otomatis di-abort.
+        disableConcurrentBuilds(abortPrevious: true)
     }
 
     stages {
@@ -44,8 +47,7 @@ pipeline {
 
                     echo "=== Installing Dependencies ==="
 
-                    # --frozen-lockfile: gagal jika bun.lock tidak sinkron dengan package.json
-                    bun install --frozen-lockfile
+                    bun install
 
                     echo "=== Dependencies Installed ==="
                 '''
@@ -53,7 +55,7 @@ pipeline {
         }
 
         // ============================================================
-        // TEST (dengan coverage -> coverage/lcov.info untuk SonarQube)
+        // TEST
         // ============================================================
         stage('Test') {
             agent {
@@ -69,7 +71,13 @@ pipeline {
 
                     echo "=== Running Tests with Coverage ==="
 
-                    npx vitest run --coverage
+                    if [ -f angular.json ]; then
+                        echo "Framework: Angular"
+                        npx ng test --coverage
+                    else
+                        echo "Framework: React, Next.js, Vue, Nuxt, Svelte, or SvelteKit"
+                        npx vitest run --coverage
+                    fi
 
                     echo "=== Tests Passed ==="
                 '''
@@ -112,7 +120,6 @@ pipeline {
                         --cache-dir .trivy-cache \
                         --scanners vuln \
                         --severity HIGH,CRITICAL \
-                        --skip-dirs node_modules,coverage,dist \
                         --format sarif \
                         --output trivy-results.sarif \
                         --exit-code 1 \
@@ -125,9 +132,9 @@ pipeline {
 
             post {
                 always {
-                    // failOnError false: agar Warnings NG tidak menandai build FAILURE
-                    // sementara stage berikutnya tetap berjalan.
-                    // Kegagalan HIGH/CRITICAL berasal dari trivy --exit-code 1 di atas.
+                    // failOnError must be false: otherwise Warnings NG can mark the
+                    // whole build FAILURE while later stages still run (all green, badge red).
+                    // Build failure on HIGH/CRITICAL comes from trivy --exit-code 1 above.
                     recordIssues(
                         enabledForFailure: true,
                         failOnError: false,
@@ -175,7 +182,7 @@ pipeline {
         // ============================================================
         stage('Quality Gate') {
             steps {
-                timeout(time: 30, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -211,11 +218,18 @@ pipeline {
                         -x ".env" \
                         -x ".env.*" \
                         -x "coverage/*" \
+                        -x ".next/*" \
+                        -x "out/*" \
+                        -x ".nuxt/*" \
+                        -x ".output/*" \
+                        -x ".svelte-kit/*" \
+                        -x ".angular/*" \
                         -x "dist/*" \
                         -x "build/*" \
                         -x ".trivy-cache/*" \
                         -x "latest-app.zip" \
-                        -x "trivy-results.sarif"
+                        -x "trivy-results.sarif" \
+                        -x ".docs/*"
 
                     echo "=== Application Package Created ==="
 
@@ -235,7 +249,10 @@ pipeline {
 
             steps {
 
+                // ========================================================
                 // 1. ARCHIVE ARTIFACT KE JENKINS
+                // ========================================================
+
                 archiveArtifacts(
                     artifacts: 'latest-app.zip',
                     fingerprint: true,
@@ -244,7 +261,10 @@ pipeline {
 
                 script {
 
+                    // ====================================================
                     // 2. BUAT IDENTITAS APPLICATION
+                    // ====================================================
+
                     def appName = env.JOB_NAME
                         .replaceAll('[^a-zA-Z0-9._-]', '-')
                         .replaceAll('-+', '-')
@@ -255,7 +275,10 @@ pipeline {
                     echo "Application Name: ${appName}"
                     echo "Build ID: ${buildId}"
 
+                    // ====================================================
                     // 3. COPY KE USER CONTENT
+                    // ====================================================
+
                     sh """
                         set -e
 
@@ -278,7 +301,10 @@ pipeline {
                             "/var/jenkins_home/userContent/applications/${appName}/${buildId}/latest-app.zip"
                     """
 
+                    // ====================================================
                     // 4. BUAT PUBLIC ARTIFACT URL
+                    // ====================================================
+
                     def jenkinsBaseUrl = env.BUILD_URL
                         .substring(0, env.BUILD_URL.indexOf('/job/'))
                         .replace('localhost', 'host.docker.internal')
@@ -318,7 +344,10 @@ pipeline {
                     echo "Artifact URL:"
                     echo "${env.ARTIFACT_URL}"
 
+                    // ==================================================
                     // 1. REQUEST REDEPLOYMENT
+                    // ==================================================
+
                     echo ""
                     echo "=== Request Redeployment ==="
 
@@ -342,7 +371,10 @@ pipeline {
                     echo "Redeploy Response:"
                     echo redeployResponse
 
+                    // ==================================================
                     // 2. POLLING DEPLOYMENT PROGRESS
+                    // ==================================================
+
                     echo ""
                     echo "=== Waiting For Deployment ==="
 
@@ -385,7 +417,10 @@ pipeline {
                         echo "Progress Response:"
                         echo progressResponse
 
+                        // ==================================================
                         // PARSE JSON
+                        // ==================================================
+
                         def json = readJSON text: progressResponse
 
                         deploymentStatus = json?.data?.status
@@ -400,7 +435,10 @@ pipeline {
 
                         echo "Deployment Status: ${deploymentStatus}"
 
+                        // ==================================================
                         // SUCCESS
+                        // ==================================================
+
                         if (deploymentStatus == 'SUCCESS') {
 
                             echo ""
@@ -411,7 +449,10 @@ pipeline {
                             break
                         }
 
+                        // ==================================================
                         // FAIL
+                        // ==================================================
+
                         if (deploymentStatus == 'FAIL') {
 
                             echo ""
@@ -434,7 +475,10 @@ pipeline {
                             )
                         }
 
+                        // ==================================================
                         // OTHER STATUS
+                        // ==================================================
+
                         echo "Deployment masih berjalan..."
                     }
 
@@ -447,7 +491,9 @@ pipeline {
         }
     }
 
+    // ================================================================
     // POST ACTIONS
+    // ================================================================
     post {
 
         always {

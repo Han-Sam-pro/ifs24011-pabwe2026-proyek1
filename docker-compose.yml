@@ -1,0 +1,12 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        VITE_API_URL: "${VITE_API_URL:-http://localhost:4000}"
+        VITE_GOOGLE_MAPS_KEY: "${VITE_GOOGLE_MAPS_KEY:-}"
+    image: roamplan-frontend:latest
+    container_name: roamplan-frontend
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
